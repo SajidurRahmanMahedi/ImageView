@@ -10,6 +10,8 @@ Windows 10 (64-bit)
 
 Windows 11 (64-bit)
 
+Linux
+
 ⚠️ Note:
 
 ImageView is built by an independent developer and is not code-signed.
