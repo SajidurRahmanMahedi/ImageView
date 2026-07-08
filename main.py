@@ -9,16 +9,22 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtGui import QPixmap, QIcon, QImage
 from PyQt6.QtCore import Qt, QSize, QTimer, QThread, pyqtSignal
 
-from taskbar_icon import set_taskbar_icon
-from temp_path import resource_path
-from dark_titlebar import apply_dark_title_bar
-
 def natural_sort_key(s):
     return [int(text) if text.isdigit() else text.lower() for text in re.split(r'(\d+)', s)]
 
+if os.name == "nt":
 
-icon_path = resource_path("icon.ico")
-set_taskbar_icon(icon_path)
+    # Set up base directory for all resources
+    if getattr(sys, 'frozen', False):
+        # If we're running as a PyInstaller bundle
+        base_dir = os.path.dirname(sys.executable)
+    else:
+        # If we're running as a normal Python script
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+
+    from taskbar_icon import set_taskbar_icon
+    icon_path = os.path.join(base_dir, "icon.ico")
+    set_taskbar_icon(icon_path)
 
 
 class FrameLoaderThread(QThread):
@@ -108,7 +114,11 @@ class ImageViewer(QMainWindow):
     def showEvent(self, event):
         """Window is shown for the first time"""
         super().showEvent(event)
-        apply_dark_title_bar(self)
+
+        if os.name == "nt":
+            from dark_titlebar import apply_dark_title_bar 
+            apply_dark_title_bar(self)
+
         if not self._window_shown:
             self._window_shown = True
             # Force a resize event to ensure proper image scaling
@@ -332,7 +342,10 @@ class ImageViewer(QMainWindow):
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
-    app.setWindowIcon(QIcon(icon_path))
+
+    if os.name == "nt":
+        app.setWindowIcon(QIcon(icon_path))
+
     start_file = sys.argv[1] if len(sys.argv) > 1 else None
     viewer = ImageViewer(start_file)
 

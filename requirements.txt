@@ -1,3 +1,6 @@
+# core dependency
 pillow
 pyqt6
-pywin32
+
+# build dependency
+pyinstaller
